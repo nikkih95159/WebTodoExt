@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <style>
+        body {
+          background-image: url('images/isleofskye.jpg');
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+          background-size: cover;
+        }
+        * {
+          font-family: 'Courier New', Courier, monospace;
+          color: white;
+        }
+        ul {
+          padding: 0;
+          margin: 0;
+          width: 100%;
+          display: table;
+          border-spacing: .4em;
+        }
+        li {
+          list-style: none;
+          display: table-row;
+        }
+        label, button {
+          display: table-cell;
+        }
+        button {
+          color: black;
+          border-radius: 15px;
+          border-color: transparent;
+          cursor: pointer;
+        }
+        .todoContainer {
+          background-color: rgba(0, 0, 0, 0.6);
+          display: inline-block;
+          padding: 10px;
+          width: 300px;
+          max-height: 400px;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -120px;
+          margin-left: -140px;
+          overflow: auto;
+        }
+        .todoInput {
+          text-align: center;
+          display: flex;
+          padding: 10px 5px 10px 5px;
+        }
+        input {
+          color: black;
+          flex: 1;
+        }
+        .todoTitle {
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="signin" id="signinContainer" hidden>
+        <p3>Login/Signup</p3>
+        <input type="text" id="user" placeholder="Enter username">
+        <input type="password" id="password" placeholder="password">
+        <button id="submit">Submit</button>
+      </div>
+      <div class="todoContainer">
+        <div class="todoTitle">
+          <p3>Todo List</p3>
+        </div>
+        <div class="todoInput">
+          <input type="text" id="scriptBox" placeholder="Add a new todo">
+        </div>
+        <ul>
+          <div id="todo"></div>
+        </ul>
+      </div>
+      <script src="https://www.gstatic.com/firebasejs/7.15.3/firebase.js"></script>
+      <script src="config.js"></script>
+      <script src="popup.js"></script>
+    </body>
+  </html>
