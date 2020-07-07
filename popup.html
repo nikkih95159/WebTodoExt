@@ -3,7 +3,6 @@
     <head>
       <style>
         body {
-          background-image: url('images/isleofskye.jpg');
           background-repeat: no-repeat;
           background-attachment: fixed;
           background-size: cover;
@@ -40,10 +39,74 @@
           max-height: 400px;
           position: absolute;
           top: 50%;
-          left: 50%;
+          left: 60%;
           margin-top: -120px;
           margin-left: -140px;
           overflow: auto;
+        }
+        .timeContainer {
+          background-color: rgba(0, 0, 0, 0.1);
+          padding: 10px;
+          width: 300px;
+          max-height: 400px;
+          display: inline-block;
+          position: absolute;
+          top: 50%;
+          left: 35%;
+          margin-top: -120px;
+          margin-left: -140px;
+        }
+        .signinContainer {
+          background-color: rgba(0, 0, 0, 0.8);
+          padding: 10px;
+          width: 300px;
+          max-height: 400px;
+          /* display: inline-block; */
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -120px;
+          margin-left: -140px;
+          text-align: center;
+        }
+        /* .center {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          -moz-transform: translateX(-50%) translateY(-50%);
+          -webkit-transform: translateX(-50%) translateY(-50%);
+          transform: translateX(-50%) translateY(-50%);
+        } */
+        .time {
+          font-weight: 900;
+          font-size: 50px;
+          display: table;
+          margin: 0 auto;
+        }
+        .day {
+          font-weight: 700;
+          font-size: 20px;
+          display: table;
+          margin: 0 auto;
+        }
+        .weather {
+          font-weight: 700;
+          font-size: 18px;
+          display: table;
+          margin: 0 auto;
+          padding: 2px 0px 5px 0px;
+        }
+        .forecastWeather {
+          font-weight: 700;
+          font-size: 16px;
+          display: table;
+          margin: 0 auto;
+        }
+        .forecastDays {
+          font-weight: 700;
+          font-size: 16px;
+          display: table;
+          margin: 0 auto;
         }
         .todoInput {
           text-align: center;
@@ -60,23 +123,33 @@
       </style>
     </head>
     <body>
-      <div class="signin" id="signinContainer" hidden>
-        <p3>Login/Signup</p3>
-        <input type="text" id="user" placeholder="Enter username">
-        <input type="password" id="password" placeholder="password">
+      <div class="signinContainer" id="signin" hidden>
+        <p3>Login/Signup</p3> <hr> <br>
+        <input type="text" id="user" placeholder="Enter username"> <br> <br>
+        <input type="password" id="password" placeholder="password"> <br> <br>
         <button id="submit">Submit</button>
       </div>
-      <div class="todoContainer">
-        <div class="todoTitle">
-          <p3>Todo List</p3>
+      <!-- <div class="center"> -->
+        <div class="timeContainer" id="timeContainer">
+          <div id="displayDay" class="day"></div>
+          <div id="displayTime" class="time"></div>
+          <div id="displayWeather" class="weather"></div>
+          <div id="displayForecastDays" class="forecastDays">
+          </div>
+          <div id="displayForecastWeather" class="forecastWeather"></div>
         </div>
-        <div class="todoInput">
-          <input type="text" id="scriptBox" placeholder="Add a new todo">
+        <div class="todoContainer" id="todoContainer">
+          <div class="todoTitle"> 
+            <p3>Todo List</p3>
+          </div>
+          <div class="todoInput">
+            <input type="text" id="scriptBox" placeholder="Add a new todo">
+          </div>
+          <ul>
+            <div id="todo"></div>
+          </ul>
         </div>
-        <ul>
-          <div id="todo"></div>
-        </ul>
-      </div>
+      <!-- </div> -->
       <script src="https://www.gstatic.com/firebasejs/7.15.3/firebase.js"></script>
       <script src="config.js"></script>
       <script src="popup.js"></script>

@@ -1,20 +1,3 @@
-// let changeColor = document.getElementById('changeColor');
-
-//   chrome.storage.sync.get('color', function(data) {
-//     changeColor.style.backgroundColor = data.color;
-//     changeColor.setAttribute('value', data.color);
-//   });
-
-//   changeColor.onclick = function(element) {
-//     let color = element.target.value;
-//     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-//       chrome.tabs.executeScript(
-//           tabs[0].id,
-//           {code: 'document.body.style.backgroundColor = "' + color + '";'});
-//     });
-//   };
-
-// https://github.com/firebase/quickstart-js/tree/master/auth/chromextension
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
@@ -28,55 +11,126 @@ document.getElementById("submit").addEventListener("click", function() {
   db.ref('users/' + username).update({
     password: password
   });
-  document.getElementById("signinContainer").style.display = 'none';
+  document.getElementById("signin").style.display = 'none';
+  document.getElementById("todoContainer").style.display = 'block';
+  document.getElementById("timeContainer").style.display = 'block';
+  document.getElementById("scriptBox").disabled = false;
   location.reload();
 });
 
-/**
- * initApp handles setting up the Firebase context and registering
- * callbacks for the auth status.
- *
- * The core initialization is in firebase.App - this is the glue class
- * which stores configuration. We provide an app name here to allow
- * distinguishing multiple app instances.
- *
- * This method also registers a listener with firebase.auth().onAuthStateChanged.
- * This listener is called when the user is signed in or out, and that
- * is where we update the UI.
- *
- * When signed in, we also authenticate to the Firebase Realtime Database.
- */
 function initApp() {
   // Listen for auth state changes.
   firebase.auth().onAuthStateChanged(function(user) {
     console.log('User state change detected from the Background script of the Chrome Extension:', user);
   });
   if (localStorage.getItem("username") != null) {
-    document.getElementById("signinContainer").style.display = 'none';
+    document.getElementById("signin").style.display = 'none';
     document.getElementById("scriptBox").disabled = false;
   }
   else {
     document.getElementById("scriptBox").disabled = true;
-    document.getElementById("signinContainer").style.display = 'block';
+    document.getElementById("todoContainer").style.display = 'none';
+    document.getElementById("timeContainer").style.display = 'none';
+    document.getElementById("signin").style.display = 'block';
   }
-  // if (localStorage.getItem("username") == null) {
-  //   username = prompt('Input username');
-  //   localStorage.setItem("username", username);
-  //   password = prompt('Input password');
-  //   db.ref('users/' + username).set({
-  //     password: password
-  //   });
-  // }
-  // db.ref('users/nikkih').set({
-  //   password: "test"
-  // });
 }
+
+var images = ["cliffsofmoher.jpg", "cliffsofmoher2.jpg", "edinburgh.jpg", "isleofskyelake.jpg", "italy.jpg", "london.jpg", "rome.jpg"];
+var m_names = ["January", "February", "March", 
+"April", "May", "June", "July", "August", "September", 
+"October", "November", "December"];
+var d_names = ["Sunday","Monday", "Tuesday", "Wednesday", 
+"Thursday", "Friday", "Saturday"];
+var d_names_letters = ["S" ,"M", "T", "W", "T", "F", "S"];
+var lat, long;
+
+function initGeolocation() {
+  if( navigator.geolocation )
+  {
+      // Call getCurrentPosition with success and failure callbacks
+      navigator.geolocation.getCurrentPosition( success, fail );
+  }
+  else
+  {
+      alert("Sorry, your browser does not support geolocation services.");
+  }
+}
+
+function success(position) {
+    long = position.coords.longitude;
+    lat = position.coords.latitude;
+    fetch('https://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + long + '&appid=' + openWeatherAPI + '&units=imperial') 
+    .then(function(resp) { return resp.json() }) // Convert data to json
+    .then(function(data) {
+      document.getElementById('displayWeather').innerHTML = 'Feels like: ' + data.main.feels_like + String.fromCharCode(176);
+    })
+    .catch(function() {
+      // errors
+    });
+    fetch('https://api.openweathermap.org/data/2.5/forecast?lat=' + lat + '&lon=' + long + '&appid=' + openWeatherAPI + '&units=imperial') 
+    .then(function(resp) { return resp.json() }) // Convert data to json
+    .then(function(data) {
+      document.getElementById('displayForecastDays').innerHTML += '&ensp;';
+      for (var i = 0; i < 5; i++) {
+        let date = data.list[i*8].dt_txt;
+        date = date.split(" ")[0];
+        let parts = date.split('-');
+        let year = parseInt(parts[0], 10);
+        let month = parseInt(parts[1], 10) - 1;
+        let day = parseInt(parts[2], 10);
+        date = new Date(year, month, day);
+        document.getElementById('displayForecastDays').innerHTML = document.getElementById('displayForecastDays').innerHTML + d_names_letters[date.getDay()] + '&emsp; ';
+        document.getElementById('displayForecastWeather').innerHTML = ~~data.list[i*8].main.feels_like + String.fromCharCode(176) + ' ' + document.getElementById('displayForecastWeather').innerHTML;
+      }
+    })
+    .catch(function() {
+      console.log('error');
+    });
+}
+
+function fail() {
+  console.log("couldn't obtain location");
+}
+setInterval(initGeolocation, 1000 * 60 * 60 * 24);
 
 window.onload = function() {
   initApp();
-  // getAllTodos();
-  // displayTodos();
+  change_image();
+  startTime();
+  startDay();
+  initGeolocation();
 };
+
+function change_image() {
+    var newUrl = images[Math.floor(Math.random() * images.length)];
+    console.log(newUrl);
+    document.body.style.backgroundImage = 'url(images/' + newUrl + ')';
+}
+setInterval(change_image, 1000 * 60 * 60 * 24);
+
+function startTime() {
+  var today = new Date();
+  var h = today.getHours();
+  var m = today.getMinutes();
+  m = checkTime(m);
+  document.getElementById('displayTime').innerHTML = h + ":" + m;
+  var t = setTimeout(startTime, 500);
+}
+
+function checkTime(i) {
+  if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+  return i;
+}
+
+function startDay() {
+  var myDate = new Date();
+  myDate.setDate(myDate.getDate());
+  var curr_date = myDate.getDate();
+  var curr_month = myDate.getMonth();
+  var curr_day  = myDate.getDay();
+  document.getElementById('displayDay').innerHTML = d_names[curr_day] + " " + m_names[curr_month] + ", " + curr_date;
+  var t = setTimeout(startDay, 1000*60*60*24);
+}
 
 document.getElementById("scriptBox").addEventListener("keydown", function(e) {
   if (e.keyCode == 13) {
@@ -93,58 +147,48 @@ document.getElementById("scriptBox").addEventListener("keydown", function(e) {
   }
 }, false);
 
-// function getAllTodos() {
   // CHECKS FOR UPDATES IN LIST
-  console.log('USERNAME: ', localStorage.getItem("username"));
-  var todos = db.ref('users/' + localStorage.getItem("username") + '/todo/');
-  todos.on('child_added', function(data) {
-    /**
-     * DATA CALLS
-     * data.key
-     * data.val()
-     * data.val().author
-     */
-    // document.getElementById("todo").outerHTML += "<p5 id=" + data.key + ">" + data.val() + "</p5><br>";
-    if (data.val().done == true) {
-      document.getElementById("todo").outerHTML =
-      "<li><label for="+ data.key +"><input type='checkbox' checked id=" + data.key + ">" +
-      data.val().itemText + "</label>" + 
-      "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").outerHTML ;
-    }
-    else {
-      document.getElementById("todo").outerHTML =
-      "<li><label for="+ data.key +"><input type='checkbox' id=" + data.key + ">" +
-      data.val().itemText + "</label>" + 
-      "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").outerHTML ;
-    }
-    
-    initializeCheckbox();
-    initializeDelete();
-  });
-
-  // READ DATA ONCE CODE
-  // db.ref("users/001/todo").once('value').then(function(snapshot){
-  //   snapshot.forEach(function(childSnapshot) {
-  //     // window.allTodos.push({
-  //     //   done: childSnapshot.val().done,
-  //     //   itemText: childSnapshot.val().itemText,
-  //     //   objectId: childSnapshot.key
-  //     // });
-  //     document.getElementById("todo").outerHTML =
-  //     "<li><label for="+ childSnapshot.key +"><input type='checkbox' id=" + childSnapshot.key + ">" +
-  //     childSnapshot.val().itemText + "</label>" + 
-  //     "<button id=" +  childSnapshot.key + ">x</button></li>" + document.getElementById("todo").outerHTML ;
-  //   });
-  //   // for (i = allTodos.length - 1; i >= 0; i--) {
-  //     // document.getElementById("todo").outerHTML +=
-  //     // "<li><label for="+ allTodos[i].objectId +"><input type='checkbox' id=" + allTodos[i].objectId + ">" +
-  //     // allTodos[i].itemText + "</label>" + 
-  //     // "<button id=" +  allTodos[i].objectId + ">x</button></li>";
-  //   // }
-  //   checkbox();
-  // });
+console.log('USERNAME: ', localStorage.getItem("username"));
+var todos = db.ref('users/' + localStorage.getItem("username") + '/todo/');
+todos.on('child_added', function(data) {
+  /**
+   * DATA CALLS
+   * data.key
+   * data.val()
+   * data.val().author
+   */
+  if (data.val().done == true) {
+    document.getElementById("todo").outerHTML =
+    "<li><label for="+ data.key +"><input type='checkbox' checked id=" + data.key + ">" +
+    data.val().itemText + "</label>" + 
+    "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").outerHTML ;
+  }
+  else {
+    document.getElementById("todo").outerHTML =
+    "<li><label for="+ data.key +"><input type='checkbox' id=" + data.key + ">" +
+    data.val().itemText + "</label>" + 
+    "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").outerHTML ;
+  }
   
-// }
+  initializeCheckbox();
+  initializeDelete();
+});
+
+todos.on('child_changed', function(data) {
+  console.log('child changed ', data.val().itemText);
+  if (data.val().done == true) {
+    document.getElementById(data.key).checked = true;
+  }
+  else {
+    document.getElementById(data.key).checked = false;
+  }
+});
+
+todos.on('child_removed', function(data) {
+  console.log('child removed ', data.val().itemText);
+  document.getElementById(data.key).parentElement.remove();
+  document.getElementById(data.key).remove();
+});
 
 function initializeCheckbox() {
   var allCheckboxes = document.querySelectorAll("input[type='checkbox']");
@@ -165,7 +209,8 @@ function initializeDelete() {
   [].forEach.call(allDeletes, function (del) {
     del.addEventListener("click", function(){
       db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.id).remove();
-      this.parentElement.remove();
+      // this.parentElement.remove();
+      this.remove();
           // location.reload();
     });
   });
