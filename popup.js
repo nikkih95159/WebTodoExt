@@ -1,41 +1,4 @@
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-var db = firebase.database();
-var username;
-var password = "";
-
-document.getElementById("submit").addEventListener("click", function() {
-  username = document.getElementById("user").value;
-  localStorage.setItem("username", username);
-  password = document.getElementById("password").value;
-  db.ref('users/' + username).update({
-    password: password
-  });
-  document.getElementById("signin").style.display = 'none';
-  document.getElementById("todoContainer").style.display = 'block';
-  document.getElementById("timeContainer").style.display = 'block';
-  document.getElementById("scriptBox").disabled = false;
-  location.reload();
-});
-
-function initApp() {
-  // Listen for auth state changes.
-  firebase.auth().onAuthStateChanged(function(user) {
-    console.log('User state change detected from the Background script of the Chrome Extension:', user);
-  });
-  if (localStorage.getItem("username") != null) {
-    document.getElementById("signin").style.display = 'none';
-    document.getElementById("scriptBox").disabled = false;
-  }
-  else {
-    document.getElementById("scriptBox").disabled = true;
-    document.getElementById("todoContainer").style.display = 'none';
-    document.getElementById("timeContainer").style.display = 'none';
-    document.getElementById("signin").style.display = 'block';
-  }
-}
-
-var images = ["cliffsofmoher.jpg", "cliffsofmoher2.jpg", "edinburgh.jpg", "isleofskyelake.jpg", "italy.jpg", "london.jpg", "rome.jpg"];
+var images = ["cliffsofmoher.jpg", "cliffsofmoher2.jpg", "edinburgh.jpg", "isleofskyelake.jpg", "italy.jpg", "london.jpg", "rome.jpg", "cliffs3.jpg", "cliffs4.jpg", "deans.jpg", "ios.jpg", "ios2.jpg", "ios3.jpg", "ios4.jpg", "nz.jpg", "stpauls.jpg", "trevvi.jpg"];
 var m_names = ["January", "February", "March", 
 "April", "May", "June", "July", "August", "September", 
 "October", "November", "December"];
@@ -44,16 +7,168 @@ var d_names = ["Sunday","Monday", "Tuesday", "Wednesday",
 var d_names_letters = ["S" ,"M", "T", "W", "T", "F", "S"];
 var lat, long;
 
+window.onload = function() {
+  initApp();
+  change_image();
+  startTime();
+  startDay();
+  initGeolocation();
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+var username;
+var password = "";
+
+document.getElementById("loginButton").addEventListener("click", function() {
+  document.getElementById("signupContainer").style.display = 'none';
+  document.getElementById("loginContainer").style.display = 'block';
+  document.getElementById("loginButton").style.backgroundColor = 'rgba(144,238,144, 0.9)';
+  document.getElementById("signupButton").style.backgroundColor = 'rgb(255,255,255)';
+});
+
+document.getElementById("signupButton").addEventListener("click", function() {
+  document.getElementById("loginContainer").style.display = 'none';
+  document.getElementById("signupContainer").style.display = 'block';
+  document.getElementById("submitSignup").style.display = 'none';
+  document.getElementById("signupButton").style.backgroundColor = 'rgba(144,238,144, 0.9)';
+  document.getElementById("loginButton").style.backgroundColor = 'rgb(255,255,255)';
+});
+
+document.getElementById("submitLogin").addEventListener("click", function() {
+  var user = document.getElementById("userLogin").value;
+  var pswd = document.getElementById("passwordLogin").value;
+  var userExists = false;
+  var correctPswd = false;
+  if (user == '' || pswd == '') {
+    document.getElementById("verifyLogin").innerHTML = "Fields are empty.";
+  } else {
+    db.ref('users').once("value").then((snapshot) => {
+      snapshot.forEach((data) =>{
+          if (user === data.key && pswd === data.val().password) {
+            userExists = true;
+            correctPswd = true;
+          }
+          else if (user === data.key && pswd != data.val().password) {
+            correctPswd = false;
+            userExists = true;
+          }
+      });
+
+      if (userExists == true && correctPswd == true) {
+        console.log('user exists');
+        localStorage.setItem("username", user);
+        db.ref('users/' + user).update({
+          password: pswd
+        });
+        document.getElementById("account").style.display = 'none';
+        document.getElementById("todoContainer").style.display = 'block';
+        document.getElementById("timeContainer").style.display = 'block';
+        document.getElementById("scriptBox").disabled = false;
+        location.reload();
+      }
+      else if (correctPswd == false && userExists == true) {
+        document.getElementById("verifyLogin").innerHTML = "Incorrect password.";
+      } else {
+        document.getElementById("verifyLogin").innerHTML = "Username does not exist.";
+      }
+    }).catch((e) =>{
+      console.log(e);
+    });
+  }
+});
+
+document.getElementById("passwordVerify").onkeyup = function() {
+  var pswd = document.getElementById("passwordSignup").value;
+  var pswdVerify = document.getElementById("passwordVerify").value;
+  var user = document.getElementById("userSignup").value;
+
+  if (pswd != pswdVerify) {
+    document.getElementById("verifyPasswords").innerHTML = "Passwords do not match."
+    document.getElementById("submitSignup").style.display = 'none';
+  }
+  else if (pswdVerify == '') {
+    document.getElementById("verifyPasswords").innerHTML = "Password is empty."
+    document.getElementById("submitSignup").style.display = 'none';
+  } else {
+    document.getElementById("verifyPasswords").innerHTML = "Passwords match!"
+    document.getElementById("submitSignup").style.display = 'inline';
+  }
+};
+
+document.getElementById("userSignup").onkeyup = function() {
+  var user = document.getElementById("userSignup").value;
+  var pswdVerify = document.getElementById("passwordVerify").value;
+
+  if (user != '') {
+    document.getElementById("verifyUsername").innerHTML = "";
+  } else {
+    document.getElementById("verifyUsername").innerHTML = "Username is empty."
+  }
+};
+
+document.getElementById("submitSignup").addEventListener("click", function() {
+  var pswd = document.getElementById("passwordSignup").value;
+  var user = document.getElementById("userSignup").value;
+  var userExists = false;  
+  if (user == '') {
+    document.getElementById("verifyUsername").innerHTML = "Username is empty.";
+  }
+  else {
+    db.ref('users').once("value").then((snapshot) => {
+      snapshot.forEach((data) =>{
+          if (user === data.key) {
+            document.getElementById("verifyUsername").innerHTML = "Username already exists.";
+            userExists = true;
+          }
+      });
+      if (userExists === true) {
+        console.log('user exists');
+      }
+      else {
+        console.log('user does not exist');
+        localStorage.setItem("username", user);
+        db.ref('users/' + user).update({
+          password: pswd
+        });
+        document.getElementById("account").style.display = 'none';
+        document.getElementById("todoContainer").style.display = 'block';
+        document.getElementById("timeContainer").style.display = 'block';
+        document.getElementById("scriptBox").disabled = false;
+        location.reload();
+      }
+    }).catch((e) =>{
+      console.log(e);
+    });
+  }
+});
+
+function initApp() {
+  // Listen for auth state changes.
+  firebase.auth().onAuthStateChanged(function(user) {
+    console.log('User state change detected from the Background script of the Chrome Extension:', user);
+  });
+  if (localStorage.getItem("username") != null) {
+    document.getElementById("account").style.display = 'none';
+    document.getElementById("scriptBox").disabled = false;
+  }
+  else {
+    document.getElementById("scriptBox").disabled = true;
+    document.getElementById("todoContainer").style.display = 'none';
+    document.getElementById("timeContainer").style.display = 'none';
+    document.getElementById("account").style.display = 'block';
+    document.getElementById("signupButton").style.backgroundColor = 'rgba(144,238,144, 0.9)';
+    document.getElementById("submitSignup").style.display = 'none';
+  }
+}
+
 function initGeolocation() {
-  if( navigator.geolocation )
-  {
-      // Call getCurrentPosition with success and failure callbacks
-      navigator.geolocation.getCurrentPosition( success, fail );
+  var geoOptions = {
+    maximumAge: 5 * 60 * 1000,
+    timeout: 10 * 1000
   }
-  else
-  {
-      alert("Sorry, your browser does not support geolocation services.");
-  }
+  navigator.geolocation.getCurrentPosition(success, fail , geoOptions);
 }
 
 function success(position) {
@@ -91,15 +206,7 @@ function success(position) {
 function fail() {
   console.log("couldn't obtain location");
 }
-setInterval(initGeolocation, 1000 * 60 * 60 * 24);
-
-window.onload = function() {
-  initApp();
-  change_image();
-  startTime();
-  startDay();
-  initGeolocation();
-};
+// setInterval(initGeolocation, 1000 * 60 * 60 * 24);
 
 function change_image() {
     var newUrl = images[Math.floor(Math.random() * images.length)];

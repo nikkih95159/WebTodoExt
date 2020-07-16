@@ -1,8 +1,8 @@
 {
     "name": "Todo Extension",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A todo list extension",
-    "permissions": [],
+    "permissions": ["geolocation"],
     "options_page": "options.html",
     "browser_action": {
         "default_icon": "images/get_started48.png",

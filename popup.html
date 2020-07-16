@@ -27,46 +27,50 @@
         }
         button {
           color: black;
-          border-radius: 15px;
+          background-color: white;
+          border-radius: 10px;
           border-color: transparent;
           cursor: pointer;
         }
+        button:hover {
+          background-color: rgba(255, 255, 255, 0.9);
+        }
         .todoContainer {
-          background-color: rgba(0, 0, 0, 0.6);
+          background-color: rgba(0, 0, 0, 0.5);
           display: inline-block;
           padding: 10px;
+          margin: 10px;
           width: 300px;
           max-height: 400px;
           position: absolute;
-          top: 50%;
-          left: 60%;
-          margin-top: -120px;
-          margin-left: -140px;
+          top: 35%;
+          left: 50%;
+          /* margin-top: -120px; */
+          /* margin-left: -140px; */
           overflow: auto;
         }
         .timeContainer {
-          background-color: rgba(0, 0, 0, 0.1);
+          background-color: rgba(0, 0, 0, 0.2);
           padding: 10px;
+          margin: 10px;
           width: 300px;
           max-height: 400px;
           display: inline-block;
           position: absolute;
-          top: 50%;
-          left: 35%;
-          margin-top: -120px;
-          margin-left: -140px;
+          top: 35%;
+          left: 20%;
+          /* margin-top: -120px; */
+          /* margin-left: -140px; */
         }
-        .signinContainer {
+        .accountContainer {
           background-color: rgba(0, 0, 0, 0.8);
           padding: 10px;
           width: 300px;
           max-height: 400px;
           /* display: inline-block; */
           position: absolute;
-          top: 50%;
-          left: 50%;
-          margin-top: -120px;
-          margin-left: -140px;
+          top: 40%;
+          left: 37%;
           text-align: center;
         }
         /* .center {
@@ -78,7 +82,7 @@
           transform: translateX(-50%) translateY(-50%);
         } */
         .time {
-          font-weight: 900;
+          font-weight: 400;
           font-size: 50px;
           display: table;
           margin: 0 auto;
@@ -123,11 +127,24 @@
       </style>
     </head>
     <body>
-      <div class="signinContainer" id="signin" hidden>
-        <p3>Login/Signup</p3> <hr> <br>
-        <input type="text" id="user" placeholder="Enter username"> <br> <br>
-        <input type="password" id="password" placeholder="password"> <br> <br>
-        <button id="submit">Submit</button>
+      <div class="accountContainer" id="account">
+        <button id="loginButton">Login</button> <button id="signupButton">Sign Up</button> <hr>
+        <div class="loginContainer" id="loginContainer" hidden>
+          <h2>Login</h2>
+          <input type="text" id="userLogin" placeholder="Enter username"> <br> <br>
+          <input type="password" id="passwordLogin" placeholder="Password"> <br> <br>
+          <p id="verifyLogin"></p>
+          <button id="submitLogin">Login</button>
+        </div>
+        <div class="signupContainer" id="signupContainer">
+          <h2>Sign Up</h2>
+          <input type="text" id="userSignup" placeholder="Enter username"> <br> <br>
+          <input type="password" id="passwordSignup" placeholder="Password"> <br> <br>
+          <input type="password" id="passwordVerify" placeholder="Verify password">
+          <p id="verifyPasswords"></p>
+          <p id="verifyUsername"></p>
+          <button id="submitSignup">Sign Up</button>
+        </div>
       </div>
       <!-- <div class="center"> -->
         <div class="timeContainer" id="timeContainer">
