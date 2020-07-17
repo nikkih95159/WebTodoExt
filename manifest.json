@@ -1,6 +1,6 @@
 {
     "name": "Todo Extension",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "A todo list extension",
     "permissions": ["geolocation"],
     "options_page": "options.html",
