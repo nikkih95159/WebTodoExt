@@ -16,14 +16,16 @@
           margin: 0;
           width: 100%;
           display: table;
-          border-spacing: .4em;
+          border-spacing: .5em;
         }
         li {
           list-style: none;
           display: table-row;
         }
-        label, button {
+        label {
           display: table-cell;
+          width: 232px;
+          transform: translateY(-1.5px);
         }
         button {
           color: black;
@@ -31,6 +33,7 @@
           border-radius: 10px;
           border-color: transparent;
           cursor: pointer;
+          display: table-cell;
         }
         button:hover {
           background-color: rgba(255, 255, 255, 0.9);
@@ -120,9 +123,24 @@
         input {
           color: black;
           flex: 1;
+          /* margin-right: 10px; */
+        }
+        input[type=checkbox] {
+          transform: translateY(2px) translateX(-5px);
         }
         .todoTitle {
           text-align: center;
+          font-weight: 700;
+          font-size: 20px;
+          margin: 0.3em;
+        }
+        .imageLocation {
+          position: absolute;
+          /* font-weight: 700; */
+          font-size: 15px;
+          bottom: 10px;
+          left: 10px;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
       </style>
     </head>
@@ -155,9 +173,19 @@
           </div>
           <div id="displayForecastWeather" class="forecastWeather"></div>
         </div>
+        <div class="todoContainer" id="doneTodoContainer">
+          <button id="listBtn">Todo List</button>
+          <div class="todoTitle">
+            Done Todos
+          </div>
+          <ul>
+            <div id="doneTodos"></div>
+          </ul>
+        </div>
         <div class="todoContainer" id="todoContainer">
+          <button id="doneTodosBtn">Done</button>
           <div class="todoTitle"> 
-            <p3>Todo List</p3>
+            Todo List
           </div>
           <div class="todoInput">
             <input type="text" id="scriptBox" placeholder="Add a new todo">
@@ -166,7 +194,8 @@
             <div id="todo"></div>
           </ul>
         </div>
-      <!-- </div> -->
+        <div class="imageLocation" id="imageLocation"></div>
+      </div>
       <script src="https://www.gstatic.com/firebasejs/7.15.3/firebase.js"></script>
       <script src="config.js"></script>
       <script src="popup.js"></script>

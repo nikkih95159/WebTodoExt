@@ -1,4 +1,9 @@
-var images = ["cliffsofmoher.jpg", "cliffsofmoher2.jpg", "edinburgh.jpg", "isleofskyelake.jpg", "italy.jpg", "london.jpg", "rome.jpg", "cliffs3.jpg", "cliffs4.jpg", "deans.jpg", "ios.jpg", "ios2.jpg", "ios3.jpg", "ios4.jpg", "nz.jpg", "stpauls.jpg", "trevvi.jpg"];
+var images = ["brycecanyon.jpg", "cliffsofmoher.jpg", "cliffsofmoher2.jpg", "edinburgh.jpg", "isleofskyelake.jpg", "italy.jpg", "london.jpg", "rome.jpg", "cliffs3.jpg", 
+              "cliffs4.jpg", "deans.jpg", "ios.jpg", "ios2.jpg", "ios3.jpg", "ios4.jpg", "nz.jpg", "stpauls.jpg", "trevvi.jpg"];
+var imageLocation = ["Bryce Canyon, Utah", "Cliffs of Moher - County Clare, Ireland", "Cliffs of Moher- County Clare, Ireland", "Dugald Stewart Monument - Edinburgh, UK", "Loch Lubnaig - Perthshire, Scotland", "Pantheon - Rome, Italy", 
+                    "St. Paul's Cathedral - London, UK", "Rome, Italy", "Cliffs of Moher - County Clare, Ireland", "Cliffs of Moher - County Clare, Ireland", "Dean Village - Edinburgh, UK", "Isle of Skye - Scotland, UK", 
+                    "Isle of Skye - Scotland, UK", "Isle of Skye - Scotland, UK", "Isle of Skye - Scotland, UK", "Queenstown, New Zealand", "St. Paul's Cathedral - London, UK", 
+                    "Trevvi Fountain - Rome, Italy"];
 var m_names = ["January", "February", "March", 
 "April", "May", "June", "July", "August", "September", 
 "October", "November", "December"];
@@ -6,6 +11,7 @@ var d_names = ["Sunday","Monday", "Tuesday", "Wednesday",
 "Thursday", "Friday", "Saturday"];
 var d_names_letters = ["S" ,"M", "T", "W", "T", "F", "S"];
 var lat, long;
+var ms24hours = 86400000;
 
 window.onload = function() {
   initApp();
@@ -13,6 +19,7 @@ window.onload = function() {
   startTime();
   startDay();
   initGeolocation();
+  checkDoneTodos();
 };
 
 // Initialize Firebase
@@ -127,7 +134,7 @@ document.getElementById("submitSignup").addEventListener("click", function() {
         console.log('user exists');
       }
       else {
-        console.log('user does not exist');
+        console.log('User does not exist');
         localStorage.setItem("username", user);
         db.ref('users/' + user).update({
           password: pswd
@@ -144,11 +151,22 @@ document.getElementById("submitSignup").addEventListener("click", function() {
   }
 });
 
+document.getElementById("doneTodosBtn").addEventListener('click', function() {
+  document.getElementById("todoContainer").style.display = 'none';
+  document.getElementById("doneTodoContainer").style.display = 'block';
+});
+
+document.getElementById("listBtn").addEventListener('click', function(){
+  document.getElementById("todoContainer").style.display = 'block';
+  document.getElementById("doneTodoContainer").style.display = 'none';
+});
+
 function initApp() {
   // Listen for auth state changes.
-  firebase.auth().onAuthStateChanged(function(user) {
-    console.log('User state change detected from the Background script of the Chrome Extension:', user);
-  });
+  // firebase.auth().onAuthStateChanged(function(user) {
+  //   console.log('User state change detected from the Background script of the Chrome Extension:', user);
+  // });
+  document.getElementById("doneTodoContainer").style.display = 'none';
   if (localStorage.getItem("username") != null) {
     document.getElementById("account").style.display = 'none';
     document.getElementById("scriptBox").disabled = false;
@@ -209,9 +227,11 @@ function fail() {
 // setInterval(initGeolocation, 1000 * 60 * 60 * 24);
 
 function change_image() {
-    var newUrl = images[Math.floor(Math.random() * images.length)];
-    console.log(newUrl);
+    var rand = Math.floor(Math.random() * images.length);
+    var newUrl = images[rand];
+    var location = imageLocation[rand];
     document.body.style.backgroundImage = 'url(images/' + newUrl + ')';
+    document.getElementById("imageLocation").innerHTML = location;
 }
 setInterval(change_image, 1000 * 60 * 60 * 24);
 
@@ -247,7 +267,8 @@ document.getElementById("scriptBox").addEventListener("keydown", function(e) {
     updates['users/' + localStorage.getItem("username") + '/todo/' + key] = {
       done: false,
       itemText: todo,
-      objectId: key
+      objectId: key,
+      date: 0
     };
     db.ref().update(updates);
     document.getElementById("scriptBox").value = '';
@@ -265,36 +286,40 @@ todos.on('child_added', function(data) {
    * data.val().author
    */
   if (data.val().done == true) {
-    document.getElementById("todo").outerHTML =
-    "<li><label for="+ data.key +"><input type='checkbox' checked id=" + data.key + ">" +
+    document.getElementById("todo").innerHTML =
+    "<li id=" + data.key + "><input type='checkbox' checked id=" + data.key + "><label id="+ data.key +"lbl>" +
     data.val().itemText + "</label>" + 
-    "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").outerHTML ;
+    "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").innerHTML ;
+    document.getElementById(data.key+'lbl').style.textDecoration = 'line-through';
   }
   else {
-    document.getElementById("todo").outerHTML =
-    "<li><label for="+ data.key +"><input type='checkbox' id=" + data.key + ">" +
+    document.getElementById("todo").innerHTML =
+    "<li id=" + data.key + "><input type='checkbox' id=" + data.key + "><label id="+ data.key +"lbl>" +
     data.val().itemText + "</label>" + 
-    "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").outerHTML ;
+    "<button id=" +  data.key + ">x</button></li>" + document.getElementById("todo").innerHTML ;
   }
   
   initializeCheckbox();
   initializeDelete();
+  // initializeLabels();
 });
 
 todos.on('child_changed', function(data) {
-  console.log('child changed ', data.val().itemText);
+  // console.log('child changed ', data.val().itemText);
   if (data.val().done == true) {
     document.getElementById(data.key).checked = true;
+    document.getElementById(data.key+'lbl').style.textDecoration = 'line-through';
   }
   else {
     document.getElementById(data.key).checked = false;
+    document.getElementById(data.key+'lbl').style.textDecoration = '';
   }
 });
 
 todos.on('child_removed', function(data) {
-  console.log('child removed ', data.val().itemText);
-  document.getElementById(data.key).parentElement.remove();
+  // console.log('child removed ', data.val().itemText);
   document.getElementById(data.key).remove();
+  // document.getElementById(data.key).remove();
 });
 
 function initializeCheckbox() {
@@ -303,22 +328,55 @@ function initializeCheckbox() {
     cb.addEventListener("change", function(){
         if (this.checked) {
           db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.id).update({done: true});
+          db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.id).update({date: new Date().getTime()});
         }
         else {
           db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.id).update({done: false});
+          db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.id).update({date: 0});
+          if (document.getElementById("doneTodoContainer").style.display == 'block') {
+            var listEl = document.getElementById(this.id);
+            document.getElementById("todo").append(listEl);
+          }
         }
     });
   });
 }
 
 function initializeDelete() {
-  var allDeletes = document.querySelectorAll("button");
+  var allDeletes = document.querySelectorAll("button:not(#listBtn):not(#loginButton):not(#signupButton):not(#submitSignup):not(#doneTodosBtn):not(#submitLogin)");
   [].forEach.call(allDeletes, function (del) {
     del.addEventListener("click", function(){
+      console.log(this.id);
       db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.id).remove();
       // this.parentElement.remove();
-      this.remove();
+      // this.remove();
           // location.reload();
+    });
+  });
+}
+
+// editing todos 
+// function initializeLabels() {
+//   var allLabels = document.querySelectorAll("label");
+//   [].forEach.call(allLabels, function (lb) {
+//     lb.addEventListener("keydown", function(e) {
+//       if (e.keyCode == 13) {
+//         db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.parentElement.id).update({itemText: this.innerHTML});
+//       }
+//     });
+//   });
+// }
+
+function checkDoneTodos() {
+  // get list of all ids
+  db.ref('users/' + localStorage.getItem("username") + '/todo/').once('value').then((snapshot) =>{
+    snapshot.forEach((data) => {
+      var currentTime = new Date().getTime();
+      if (data.val().date + ms24hours < currentTime && data.val().done == true) {
+        // if 24 hours has passed, moved the current done todos to the done todo list
+        var el = document.getElementById(data.val().objectId);
+        document.getElementById("doneTodos").append(el);
+      }
     });
   });
 }
