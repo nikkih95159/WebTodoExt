@@ -18,5 +18,5 @@
     "icons": {
         "48": "images/todoextimage.png"
     },
-    "manifest_version": 4
+    "manifest_version": 2
 }
