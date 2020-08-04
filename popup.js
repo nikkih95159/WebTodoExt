@@ -232,8 +232,8 @@ function change_image() {
     var location = imageLocation[rand];
     document.body.style.backgroundImage = 'url(images/' + newUrl + ')';
     document.getElementById("imageLocation").innerHTML = location;
+    setInterval(change_image, 1000 * 60 * 60 * 24);
 }
-setInterval(change_image, 1000 * 60 * 60 * 24);
 
 function startTime() {
   var today = new Date();
@@ -301,7 +301,7 @@ todos.on('child_added', function(data) {
   
   initializeCheckbox();
   initializeDelete();
-  // initializeLabels();
+  editLabelListener();
 });
 
 todos.on('child_changed', function(data) {
@@ -355,18 +355,6 @@ function initializeDelete() {
   });
 }
 
-// editing todos 
-// function initializeLabels() {
-//   var allLabels = document.querySelectorAll("label");
-//   [].forEach.call(allLabels, function (lb) {
-//     lb.addEventListener("keydown", function(e) {
-//       if (e.keyCode == 13) {
-//         db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.parentElement.id).update({itemText: this.innerHTML});
-//       }
-//     });
-//   });
-// }
-
 function checkDoneTodos() {
   // get list of all ids
   db.ref('users/' + localStorage.getItem("username") + '/todo/').once('value').then((snapshot) =>{
@@ -377,6 +365,42 @@ function checkDoneTodos() {
         var el = document.getElementById(data.val().objectId);
         document.getElementById("doneTodos").append(el);
       }
+    });
+  });
+}
+
+function editLabelListener() {
+  var allLabels = document.querySelectorAll("label");
+  [].forEach.call(allLabels, function (lbl) {
+    lbl.addEventListener("dblclick", function(){
+      var text = this.innerHTML;
+      var input = document.createElement("input");
+      input.onblur=function(){
+        var val = this.value;
+        if (val != "") {
+          db.ref('users/' + localStorage.getItem("username") + '/todo/' + lbl.parentNode.id).update({itemText: val});
+        }
+        else {
+          val = text;
+        }
+        this.parentNode.innerHTML=val;
+      }
+      input.onkeypress = function(e) {
+        var key = e.keyCode || e.which;
+        if (key == '13') {
+          var val = this.value;
+          if (val != "") {
+            db.ref('users/' + localStorage.getItem("username") + '/todo/' + lbl.parentNode.id).update({itemText: val});
+          }
+          else {
+            val = text;
+          }
+          input.blur();
+        }
+      };
+      this.innerHTML="";
+      this.appendChild(input);
+      input.focus();
     });
   });
 }
