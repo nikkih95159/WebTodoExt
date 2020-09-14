@@ -161,11 +161,33 @@ document.getElementById("listBtn").addEventListener('click', function(){
   document.getElementById("doneTodoContainer").style.display = 'none';
 });
 
+document.getElementById("showTodosBtn").addEventListener('click', function() {
+  if (document.getElementById("doneTodoContainer").style.display === 'block') {
+    document.getElementById("doneTodoContainer").style.display = 'none';
+  } else {
+    document.getElementById("todoContainer").style.display = document.getElementById("todoContainer").style.display === 'none' ? 'block' : 'none';    
+  }
+  if (document.getElementById("timeContainer").style.left === "" || document.getElementById("timeContainer").style.left === "20%") {
+    document.getElementById("timeContainer").style.left = "35%";
+    localStorage.setItem("hideTodos", "true");
+  } else {
+    document.getElementById("timeContainer").style.left = "20%";
+    localStorage.setItem("hideTodos", "false");
+  }
+});
+
 function initApp() {
   // Listen for auth state changes.
   // firebase.auth().onAuthStateChanged(function(user) {
   //   console.log('User state change detected from the Background script of the Chrome Extension:', user);
   // });
+
+  if (localStorage.getItem("hideTodos") === "true") {
+    document.getElementById("doneTodoContainer").style.display = 'none';
+    document.getElementById("todoContainer").style.display = 'none';
+    document.getElementById("timeContainer").style.left = "35%";
+  }
+  
   document.getElementById("doneTodoContainer").style.display = 'none';
   if (localStorage.getItem("username") != null) {
     document.getElementById("account").style.display = 'none';
@@ -346,7 +368,7 @@ function initializeDelete() {
   var allDeletes = document.querySelectorAll("button:not(#listBtn):not(#loginButton):not(#signupButton):not(#submitSignup):not(#doneTodosBtn):not(#submitLogin)");
   [].forEach.call(allDeletes, function (del) {
     del.addEventListener("click", function(){
-      console.log(this.id);
+      // console.log(this.id);
       db.ref('users/' + localStorage.getItem("username") + '/todo/' + this.id).remove();
       // this.parentElement.remove();
       // this.remove();
@@ -375,6 +397,7 @@ function editLabelListener() {
     lbl.addEventListener("dblclick", function(){
       var text = this.innerHTML;
       var input = document.createElement("input");
+      input.value = text;
       input.onblur=function(){
         var val = this.value;
         if (val != "") {
